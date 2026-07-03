@@ -6,8 +6,11 @@
  */
 import type { Shipment } from "./types";
 
+// Defaults to the deployed backend; override with NEXT_PUBLIC_API_URL (e.g.
+// http://127.0.0.1:8000 for local dev).
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://127.0.0.1:8000";
+  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ||
+  "https://tracker-backend-hct6.onrender.com";
 
 /** Thrown for any non-2xx response, carrying the HTTP status for the UI. */
 export class ApiError extends Error {
