@@ -10,7 +10,7 @@ import type { Shipment } from "./types";
 // http://127.0.0.1:8000 for local dev).
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ||
-  "https://tracker-backend-hct6.onrender.com";
+  "https://20.193.153.56.sslip.io";
 
 /** Thrown for any non-2xx response, carrying the HTTP status for the UI. */
 export class ApiError extends Error {
