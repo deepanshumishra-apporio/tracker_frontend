@@ -112,6 +112,30 @@ export function carrierLabel(carrier: Carrier): string {
   return CARRIER_LABELS[carrier] ?? carrier.toUpperCase();
 }
 
+/**
+ * Official carrier tracking-page URL for a number — used as a fallback link
+ * when our scrape can't retrieve the data (e.g. FedEx's Akamai block), so the
+ * user can still open the shipment directly on the carrier's site.
+ */
+export function carrierTrackingUrl(
+  carrier: Carrier,
+  trackingNumber: string,
+): string {
+  const n = encodeURIComponent(trackingNumber.trim());
+  switch (carrier) {
+    case "fedex":
+      return `https://www.fedex.com/fedextrack/?trknbr=${n}`;
+    case "ups":
+      return `https://www.ups.com/track?loc=en_US&tracknum=${n}`;
+    case "dhl":
+      return `https://www.dhl.com/us-en/home/tracking.html?tracking-id=${n}`;
+    case "aramex":
+      return `https://www.aramex.com/us/en/track/results?ShipmentNumber=${n}`;
+    default:
+      return "";
+  }
+}
+
 /** Format an ISO string as a human date-time; returns a dash for null/invalid. */
 export function formatDateTime(iso: string | null | undefined): string {
   if (!iso) return "—";

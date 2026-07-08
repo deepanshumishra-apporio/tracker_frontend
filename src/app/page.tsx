@@ -8,7 +8,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Spinner } from "@/components/ui/Spinner";
 import { useToast } from "@/components/ui/Toast";
 import { api } from "@/lib/api";
-import { carrierLabel } from "@/lib/format";
+import { carrierLabel, carrierTrackingUrl } from "@/lib/format";
 import type { Carrier, Shipment } from "@/lib/types";
 
 type View =
@@ -20,9 +20,15 @@ type View =
 export default function TrackPage() {
   // All state is in-memory only — nothing is stored, so a refresh clears it.
   const [view, setView] = useState<View>({ kind: "idle" });
+  // Remember the last query so a failure can offer a direct carrier-site link.
+  const [lastQuery, setLastQuery] = useState<{
+    carrier: Carrier;
+    trackingNumber: string;
+  } | null>(null);
   const { toast } = useToast();
 
   async function handleSearch(carrier: Carrier, trackingNumber: string) {
+    setLastQuery({ carrier, trackingNumber });
     setView({ kind: "loading" });
     try {
       const shipment = await api.track(carrier, trackingNumber);
@@ -93,11 +99,24 @@ export default function TrackPage() {
         )}
 
         {view.kind === "error" && (
-          <EmptyState
-            icon="⚠️"
-            title="Couldn’t track that shipment"
-            description={view.message}
-          />
+          <div className="flex flex-col items-center gap-4">
+            <EmptyState
+              icon="⚠️"
+              title="Couldn’t track that shipment"
+              description={view.message}
+            />
+            {lastQuery && (
+              <a
+                href={carrierTrackingUrl(lastQuery.carrier, lastQuery.trackingNumber)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-1"
+              >
+                Open on {carrierLabel(lastQuery.carrier)}
+                <span aria-hidden>↗</span>
+              </a>
+            )}
+          </div>
         )}
 
         {view.kind === "result" && (

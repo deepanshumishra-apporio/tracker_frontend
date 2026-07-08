@@ -8,6 +8,8 @@ import { cn } from "@/lib/cn";
 import {
   STATUS_ACCENT,
   STATUS_STYLES,
+  carrierLabel,
+  carrierTrackingUrl,
   formatDateTime,
   journeyIndex,
   relativeTime,
@@ -71,9 +73,22 @@ export function ShipmentResult({ shipment }: { shipment: Shipment }) {
         </CardBody>
       </Card>
 
-      {!shipment.ok && shipment.error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          Couldn’t retrieve tracking: {shipment.error}
+      {!shipment.ok && (
+        <div className="flex flex-col gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 sm:flex-row sm:items-center sm:justify-between">
+          <span>
+            Couldn’t retrieve tracking automatically
+            {shipment.error ? `: ${shipment.error}` : "."} You can view it directly on{" "}
+            {carrierLabel(shipment.carrier)}.
+          </span>
+          <a
+            href={carrierTrackingUrl(shipment.carrier, shipment.tracking_number)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-red-600 px-3 py-2 font-medium text-white transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1"
+          >
+            Open on {carrierLabel(shipment.carrier)}
+            <span aria-hidden>↗</span>
+          </a>
         </div>
       )}
 
