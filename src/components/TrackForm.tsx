@@ -36,8 +36,21 @@ export function TrackForm({ onSearch, loading }: TrackFormProps) {
   const suggested = guessCarrier(trackingNumber);
   const mismatch = suggested && suggested !== carrier ? suggested : null;
 
+  // FedEx tracking is temporarily unavailable.
+  const underMaintenance = carrier === "fedex";
+
   return (
     <div className="space-y-2">
+      {underMaintenance && (
+        <div className="flex items-center gap-2 rounded-lg bg-orange-50 px-3 py-2 text-sm text-orange-800 ring-1 ring-inset ring-orange-200">
+          <span aria-hidden>🛠️</span>
+          <span>
+            <strong>{carrierLabel("fedex")}</strong> tracking is currently under maintenance.
+            Please try again later or use another carrier.
+          </span>
+        </div>
+      )}
+
       <form
         onSubmit={handleSubmit}
         className="flex flex-col gap-3 sm:flex-row sm:items-end"
@@ -64,7 +77,7 @@ export function TrackForm({ onSearch, loading }: TrackFormProps) {
             disabled={loading}
           />
         </div>
-        <Button type="submit" loading={loading}>
+        <Button type="submit" loading={loading} disabled={underMaintenance}>
           {loading ? "Searching…" : "Track"}
         </Button>
       </form>

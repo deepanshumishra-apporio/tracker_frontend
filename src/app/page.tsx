@@ -72,7 +72,17 @@ export default function TrackPage() {
           <EmptyState icon="⚠️" title="Couldn’t track that shipment" description={view.message} />
         )}
 
-        {view.kind === "result" && <ShipmentResult shipment={view.shipment} />}
+        {view.kind === "result" && (
+          <div className="space-y-4">
+            {view.shipment.ok && (
+              <div className="flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-800 ring-1 ring-inset ring-emerald-200">
+                <span aria-hidden>✅</span>
+                <span>Successfully completed.</span>
+              </div>
+            )}
+            <ShipmentResult shipment={view.shipment} />
+          </div>
+        )}
       </section>
     </div>
   );
