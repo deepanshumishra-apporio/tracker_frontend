@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
+import { useToast } from "@/components/ui/Toast";
 import { CARRIER_LABELS, carrierLabel, guessCarrier } from "@/lib/format";
 import { CARRIERS } from "@/lib/types";
 import type { Carrier } from "@/lib/types";
@@ -20,12 +21,26 @@ export function TrackForm({ onSearch, loading }: TrackFormProps) {
   const [carrier, setCarrier] = useState<Carrier>("ups");
   const [trackingNumber, setTrackingNumber] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const trimmed = trackingNumber.trim();
     if (!trimmed) {
       setError("Enter a tracking number.");
+      toast({
+        variant: "error",
+        title: "Missing tracking number",
+        description: "Type a tracking number before searching.",
+      });
+      return;
+    }
+    if (carrier === "fedex") {
+      toast({
+        variant: "warning",
+        title: "FedEx is under maintenance",
+        description: "Please try again later or use another carrier.",
+      });
       return;
     }
     setError(null);
@@ -77,7 +92,7 @@ export function TrackForm({ onSearch, loading }: TrackFormProps) {
             disabled={loading}
           />
         </div>
-        <Button type="submit" loading={loading} disabled={underMaintenance}>
+        <Button type="submit" loading={loading}>
           {loading ? "Searching…" : "Track"}
         </Button>
       </form>

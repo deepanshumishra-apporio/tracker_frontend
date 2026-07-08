@@ -6,7 +6,9 @@ import { TrackForm } from "@/components/TrackForm";
 import { Card, CardBody } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Spinner } from "@/components/ui/Spinner";
+import { useToast } from "@/components/ui/Toast";
 import { api } from "@/lib/api";
+import { carrierLabel } from "@/lib/format";
 import type { Carrier, Shipment } from "@/lib/types";
 
 type View =
@@ -18,33 +20,55 @@ type View =
 export default function TrackPage() {
   // All state is in-memory only — nothing is stored, so a refresh clears it.
   const [view, setView] = useState<View>({ kind: "idle" });
+  const { toast } = useToast();
 
   async function handleSearch(carrier: Carrier, trackingNumber: string) {
     setView({ kind: "loading" });
     try {
       const shipment = await api.track(carrier, trackingNumber);
       setView({ kind: "result", shipment });
+      if (shipment.ok) {
+        toast({
+          variant: "success",
+          title: "Successfully completed",
+          description: `${carrierLabel(carrier)} · ${trackingNumber}`,
+        });
+      } else {
+        toast({
+          variant: "error",
+          title: "Couldn’t retrieve tracking",
+          description: shipment.error ?? "The carrier returned no data.",
+        });
+      }
     } catch (err) {
-      setView({
-        kind: "error",
-        message: err instanceof Error ? err.message : "Something went wrong.",
+      const message =
+        err instanceof Error ? err.message : "Something went wrong.";
+      setView({ kind: "error", message });
+      toast({
+        variant: "error",
+        title: "Tracking failed",
+        description: message,
       });
     }
   }
 
   return (
     <div className="space-y-8">
-      <section>
-        <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
+      <section className="space-y-2">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-600 ring-1 ring-inset ring-indigo-100">
+          <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
+          Live carrier tracking
+        </span>
+        <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
           Track a shipment
         </h1>
-        <p className="mt-2 text-sm text-slate-500">
+        <p className="max-w-2xl text-sm text-slate-500">
           Pick a carrier, enter a tracking number, and search. Results are fetched
           live and not saved — refreshing the page clears them.
         </p>
       </section>
 
-      <Card className="shadow-sm">
+      <Card className="shadow-sm ring-1 ring-slate-900/5">
         <CardBody className="py-5">
           <TrackForm onSearch={handleSearch} loading={view.kind === "loading"} />
         </CardBody>
@@ -69,17 +93,15 @@ export default function TrackPage() {
         )}
 
         {view.kind === "error" && (
-          <EmptyState icon="⚠️" title="Couldn’t track that shipment" description={view.message} />
+          <EmptyState
+            icon="⚠️"
+            title="Couldn’t track that shipment"
+            description={view.message}
+          />
         )}
 
         {view.kind === "result" && (
-          <div className="space-y-4">
-            {view.shipment.ok && (
-              <div className="flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-800 ring-1 ring-inset ring-emerald-200">
-                <span aria-hidden>✅</span>
-                <span>Successfully completed.</span>
-              </div>
-            )}
+          <div className="animate-in">
             <ShipmentResult shipment={view.shipment} />
           </div>
         )}

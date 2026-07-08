@@ -13,7 +13,7 @@ export interface ButtonProps
 
 const VARIANTS: Record<Variant, string> = {
   primary:
-    "bg-slate-900 text-white hover:bg-slate-700 focus-visible:outline-slate-900",
+    "bg-gradient-to-br from-indigo-500 to-sky-500 text-white shadow-sm shadow-indigo-500/30 hover:from-indigo-600 hover:to-sky-600 focus-visible:outline-indigo-500",
   secondary:
     "bg-white text-slate-800 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 focus-visible:outline-slate-400",
   danger:
